@@ -1,16 +1,12 @@
 <template>
   <div>
-    <van-button type="primary">主要按钮</van-button>
-    <van-button type="info">信息按钮</van-button>
-    <van-button type="default">默认按钮</van-button>
-    <van-button type="warning">警告按钮</van-button>
-    <van-button type="danger">危险按钮</van-button>
+    <router-view></router-view>
   </div>
 </template>
 <script>
   // 一，
   // 1，本地提交代码和远程提交代码
-  // git log 查看commit(提交到本地仓库)记录
+  // git log 查看commit(提交到本地仓库)记录/日志
   // git status 查看当前仓库的状态。看到nothing to commit, working tree clean表明都已提交，没有可提交的内容了
   // git add . 提交到暂存区
   // git commit -m '消息'
@@ -36,7 +32,9 @@
   //   - 自动的识别css中的px，并将其转成rem：用post-css，css的预处理器，vue脚手架已经帮我们配好了
   //   - 2.1 post-css 自己能干的事很少，需要下载它的生态插件：yarn add postcss-pxtorem
   //   - 2.2 告诉post-css，我们要使用这个插件：新建配置post-css的文件 .postcssrc.js
-export default {
+
+// 四, 准备和引入字体图标
+  export default {
   
 }
 </script>
