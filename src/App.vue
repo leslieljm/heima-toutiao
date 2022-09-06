@@ -1,32 +1,20 @@
 <template>
-  <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
-    <router-view/>
+  <div>
+    黑马头条
   </div>
 </template>
-
-<style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script>
+  // git log 查看commit(提交到本地仓库)记录
+  // git status 查看当前仓库的状态
+  // git add . 提交到暂存区
+  // git commit -m '消息'
+  // - feat：新增特性
+  // - style：样式的修改
+  // - fixed：bug的修改(debug)
+export default {
+  
 }
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
+</script>
+<style>
+  
 </style>
