@@ -1,6 +1,9 @@
 <template>
   <div>
-    <router-view></router-view>
+    <!-- <router-view></router-view> -->
+    <div>{{count}}</div>
+    <div>{{bigNum}}</div>
+    <button @click="SET_COUNT(10)">点击count++</button>
   </div>
 </template>
 <script>
@@ -35,8 +38,31 @@
 
 // 四, 准备和引入字体图标
 
+// mapState --> 将vuex里的state里的数据映射到computed
+// 使用
+// - 1. 引入mapState: mapState是一个函数,会返回一个对象
+// - 2. mapState函数里的参数: ['映射的属性']
+
+// mapGetters --> 将vuex里的getters里的数据映射到computed
+// 使用
+// - 1. 引入mapGetters: mapGetters是一个函数,会返回一个对象
+// - 2. mapGetters函数里的参数: ['映射的属性']
+
+// mapMutations --> 将vuex里的mutations里的方法映射到methods
+// 使用方法一样
+import {mapState, mapGetters, mapMutations} from 'vuex'
+// console.log(mapState(['count']));
 export default {
-    
+    methods: {
+      increment() {
+        this.$store.commit('SET_COUNT', 10)
+      },
+      ...mapMutations(['SET_COUNT'])
+    },
+    computed: {
+      ...mapState(['count']),  // 把调用mapState()函数返回的对象解构,把映射过来的count解构出来,count的值是一个函数(mapState函数把count包装成一个函数),这就在computed里放了一个count(){}函数,count就是该组件里的计算属性
+      ...mapGetters(['bigNum'])
+    }
 }
 </script>
 <style>
