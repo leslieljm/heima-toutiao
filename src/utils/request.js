@@ -16,20 +16,27 @@ const request = axios.create({
 
 // 需求：如果登录了，所有的请求都加上Authorization。当然也有接口是即使登录了也不需要带Authorization参数，后端接收参数是这样的，可以多传，但不能少传
 // 请求拦截器
-request.interceptors.request.use(function (config) {
-  // 每一次发请求都会执行该函数
-  // 该函数是关于在发送请求之前做些什么
-  // console.log(config) // config是每一次请求的配置对象,可以对config进行修改后再return config
-  // 如果登录了，所有的请求都加上Authorization
-  const {
-    getters: { isLogin },
-    state: { tokenObj }
-  } = store
-  if (isLogin) {
-    config.headers.Authorization = `Bearer ${tokenObj.token}`
+request.interceptors.request.use(
+  function (config) {
+    // 每一次发请求都会执行该函数
+    // 该函数是关于在发送请求之前做些什么
+    // console.log(config) // config是每一次请求的配置对象,可以对config进行修改后再return config
+    // 如果登录了，所有的请求都加上Authorization
+    const {
+      getters: { isLogin },
+      state: { tokenObj }
+    } = store
+    if (isLogin) {
+      config.headers.Authorization = `Bearer ${tokenObj.token}`
+    }
+    // 必须返回config
+    return config
+  },
+  function (error) {
+    // 每一次请求错误都会执行该函数
+    // Do something with request error
+    return Promise.reject(error)
   }
-  // 必须返回config
-  return config
-})
+)
 
 export default request
