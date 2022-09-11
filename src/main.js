@@ -10,6 +10,7 @@ import 'vant/lib/index.css'
 // 引入flexible(做rem适配)
 import 'amfe-flexible'
 
+// console.log(store) // 相当于this.$store
 // 注册使用vant组件库
 Vue.use(Vant)
 Vue.config.productionTip = false

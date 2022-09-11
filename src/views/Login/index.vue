@@ -67,7 +67,7 @@
 // vue相当于vue项目的数据仓库,里面的数据是有响应式的
 
 // 引入表单验证规则, 这样引用以后不能直接用,一定要在data里面注册
-import { mobileRules, codeRules } from './rules'
+import { mobileRules, codeRules } from '@/views/Login/rules'
 // 引入api
 import { login, sendCodeAPI } from '@/api'
 import { mapMutations } from 'vuex'

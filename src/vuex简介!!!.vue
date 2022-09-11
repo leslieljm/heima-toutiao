@@ -38,6 +38,7 @@
 
 // 四, 准备和引入字体图标
 
+// Vuex: 1.下载vuex
 // mapState --> 将vuex里的state里的数据映射到computed
 // 使用
 // - 1. 引入mapState: mapState是一个函数,会返回一个对象
