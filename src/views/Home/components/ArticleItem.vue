@@ -27,6 +27,8 @@
     </div>
 </template>
 <script>
+// 引入dayjs格式化时间
+import dayjs from '@/utils/dayjs'
 export default {
     props: {
         article: {
@@ -38,7 +40,7 @@ export default {
         label() {
             /* eslint-disable */
             const {aut_name, comm_count, pubdate} = this.article
-            return `${aut_name} ${comm_count}评论 ${pubdate}`
+            return `${aut_name} ${comm_count}评论 ${dayjs(pubdate).fromNow()}`
         }
     }
 }

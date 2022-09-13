@@ -15,8 +15,28 @@
         <article-list :id="item.id"></article-list>
       </van-tab>
 
-      <span class="toutiao toutiao-gengduo"></span>
+      <span class="toutiao toutiao-gengduo" @click="isShow = true"></span>
     </van-tabs>
+
+    <!-- 弹出层：van-popup -->
+    <!-- 设置 closeable 属性后，会在弹出层的右上角显示关闭图标 -->
+    <!-- close-icon-position：关闭图标位置，可选值为top-left bottom-left bottom-right -->
+    <van-popup
+      v-model="isShow"
+      position="bottom"
+      :style="{ height: '100%' }"
+      closeable
+      close-icon-position="top-left"
+    >
+      <!-- 把<van-popup>改成双标签，里面的内容就是显示在弹出层里的内容 -->
+      <!-- 因为编辑频道组件里面的我的频道和首页的频道数据是联动一致的，所以把首页的channels数据传过去 -->
+      <!-- 如果接收的组件props里写成小驼峰形式，这里传的时候可以写成短横线形式 -->
+      <!-- 高亮的active值和频道的索引号是对应的，所以需求：频道编辑组件里未编辑状态下点击频道关闭弹窗并切换频道，要实现这个需求要把点击的频道的索引传过来作为active的值 -->
+      <channel-edit
+        :my-channels="channels"
+        @change-active=";[(isShow = false), (active = $event)]"
+      ></channel-edit>
+    </van-popup>
   </div>
 </template>
 <script>
@@ -27,14 +47,17 @@
 import { getChannelAPI } from '@/api'
 // 引入组件
 import ArticleList from './components/ArticleList.vue'
+import ChannelEdit from './components/ChannelEdit.vue'
 export default {
   components: {
-    ArticleList
+    ArticleList,
+    ChannelEdit
   },
   data() {
     return {
       active: 0,
-      channels: []
+      channels: [],
+      isShow: false
     }
   },
   created() {

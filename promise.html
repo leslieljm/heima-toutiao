@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 手撸一个promise
+
+        // polyfill:垫片.如果原生浏览器不支持promise,自己手写一个Promise,解决低版本不兼容的问题,自己手写的Promise就是垫片
+        // new类实例对象的时候,传的参数会传给类里面的constructor函数
+        // 1. new Promise传的参数: executer 执行器函数
+        // 2. 定义成功态函数resolve和失败态函数reject
+        // 类里:constructor函数外声明的变量是每个实例对象共享的,constructor函数里的this指向某一实例对象,所以通过this.value = value改变的只是该实例对象上的value
+        // 3. 在类里声明两个变量:value:记录成功态函数的传参   reason:记录失败态函数的传参.   把传参保存到实例身上
+        // 4. 规定:promise有三种状态:1.pending 准备状态  2.fulfilled 完成态  3.rejected 拒绝态
+        // 声明一个变量status来记录状态,默认为pending状态
+        // 5. promise状态只能改变一次,pending-->fulfilled pending-->rejected,不能fulfilled,rejected状态之间相互转换
+        // 6. 当new promise在执行过程当中/当executer执行器函数在执行过程当中,任何错误都会导致promise变成失败态
+        // 7. promise必须有then方法,onFulfilled:成功的回调函数,onRejected:失败的回调函数
+        // 8. executer 执行器函数把成功态/失败态函数作为异步任务时:如p6例子里的reject('失败')
+        //   设计模式:发布订阅模式:订阅一些行为,再在合适时机去执行(发布)
+        //   - 最简单:DOM事件
+        //   - vue当中的自定义事件:$emit
+        //   - eventBus
+        //   - promise 异步的时候
+        // 9. promise实例对象除了链式调用then方法以外,还可以同一promise实例对象多次调用then方法
+        const PENDING = 'pending'
+        const FULFILLED = 'fulfilled'
+        const REJECTED = 'rejected'
+        class Promise {
+            value
+            reason
+            status = PENDING // 默认是准备状态
+            onFulfilledCallBacks = []  // 所有成功的回调函数
+            onRejectedCallBacks = []  // 所有失败的回调函数
+
+            constructor(executer) {
+                const resolve = (value) => {
+                    if (this.status === PENDING) {
+                        this.value = value
+                        this.status = FULFILLED
+                        // 2. 发布
+                        // this.onFulfilled(this.value)
+                        // 9. promise实例对象除了链式调用then方法以外,还可以同一promise实例对象多次调用then方法,把then里面的函数push到数组里面,然后全部调用
+                        this.onFulfilledCallBacks.forEach(cb => cb())
+                    }
+                }
+                const reject = (reason) => {
+                    if (this.status === PENDING) {
+                        this.reason = reason
+                        this.status = REJECTED
+                        // 2. 发布
+                        // this.onRejected(this.reason)
+                        this.onRejectedCallBacks.forEach(cb => cb())
+                    }
+                }
+
+                // 6. 当promise在执行过程当中,任何错误都会导致promise变成失败态
+                try {
+                    executer(resolve, reject)
+                } catch (error) {
+                    reject(error)
+                }
+            }
+
+            then(onFulfilled, onRejected) {
+                    if (this.status === FULFILLED) {
+                        onFulfilled(this.value)
+                    }
+                    if (this.status === REJECTED) {
+                        onRejected(this.reason)
+                    }
+                    // promise 异步的时候:resolve函数没有执行时:
+                    if (this.status === PENDING) {
+                        // 1. 订阅,把函数保存起来
+                        // this.onFulfilled = onFulfilled
+                        // this.onRejected = onRejected
+                        // 必须要包一层函数后再push进去,因为如果没有传失败态函数的话,会出现直接调用失败态函数onRejected,而失败态函数是undefined的错
+                        this.onFulfilledCallBacks.push(() => {
+                            onFulfilled(this.value)
+                        })
+                        
+                        this.onRejectedCallBacks.push(() => {
+                            onRejected(this.reason)
+                        })
+                    }
+                }
+        }
+
+        console.log(new Promise((resolve, reject) => {
+            resolve('成功')
+            reject('失败')
+        }));
+
+        const p1 = new Promise(() => {}) // pending
+        const p2 = new Promise((resolve) => resolve()) // fulfilled
+        const p3 = new Promise((resolve, reject) => reject()) // fulfilled
+        console.log(
+            'p1', p1,
+            'p2', p2,
+            'p3', p3,
+        );
+
+        const p4 = new Promise((resolve, reject) => {
+            resolve('成功')
+            reject('失败')
+        })
+        console.log('p4', p4); // 仍然是成功.因为promise状态只能改变一次
+    
+        const p5 = new Promise((resolve, reject) => {
+            throw new Error()
+        })
+        console.log(p5); // 当promise在执行过程当中,任何错误都会导致promise变成失败态
+    
+        const p6 = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                // resolve('你好')
+                reject('失败')
+            }, 3000)
+        })
+
+        p6.then(
+            (res) => console.log(res),
+            (err) => console.log(err)
+        )
+
+        const p7 = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                // resolve('你好')
+                reject('失败')
+            }, 3000)
+        })
+        p7.then(
+            (res) => console.log(res)
+        )
+        p7.then(
+            (res) => console.log(res)
+        )
+    </script>
+</body>
+</html>
