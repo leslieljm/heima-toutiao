@@ -33,9 +33,13 @@
       <!-- 如果接收的组件props里写成小驼峰形式，这里传的时候可以写成短横线形式 -->
       <!-- 高亮的active值和频道的索引号是对应的，所以需求：频道编辑组件里未编辑状态下点击频道关闭弹窗并切换频道，要实现这个需求要把点击的频道的索引传过来作为active的值 -->
       <channel-edit
+        v-if="isShow"
         :my-channels="channels"
         @change-active=";[(isShow = false), (active = $event)]"
+        @del-channel="delChannel"
+        @add-channel="addChannel"
       ></channel-edit>
+      <!-- 自定义删除频道事件和添加频道事件子组件触发 -->
     </van-popup>
   </div>
 </template>
@@ -43,11 +47,13 @@
 // 扩展知识
 // 1. ?? 【空值合并运算符】,相当于 ||,||常用于括号当中,??常用于语句当中
 // 2. ?.【可选链操作符】 if (error.response?.status===400){...} es11语法，  如果 ? 前面是 undefined，就不会报错，并且会抛出 undefined 值
+
 // 引入API
-import { getChannelAPI } from '@/api'
+import { getChannelAPI, delChannelAPI, addChannelAPI } from '@/api'
 // 引入组件
 import ArticleList from './components/ArticleList.vue'
 import ChannelEdit from './components/ChannelEdit.vue'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   components: {
     ArticleList,
@@ -61,9 +67,32 @@ export default {
     }
   },
   created() {
-    this.getChannel()
+    this.initChannels()
+  },
+  computed: {
+    ...mapGetters(['isLogin'])
   },
   methods: {
+    ...mapMutations(['SET_MY_CHANNELS']),
+    // 获取我的频道数据的逻辑：
+    // - 1. 如果登录了
+    //   - channels应该发请求获取用户自己的频道
+    // - 2. 未登录
+    //   - 1) 若本地存储里我的频道有数据，我的频道用本地存储的数据
+    //   - 2) 若本地存储里我的频道没有数据，发请求获取默认的频道数据
+    initChannels() {
+      if (this.isLogin) {
+        this.getChannel()
+      } else {
+        // 获取本地存储的数据
+        const myChannels = this.$store.state.myChannels
+        if (myChannels.length === 0) {
+          this.getChannel()
+        } else {
+          this.channels = myChannels
+        }
+      }
+    },
     async getChannel() {
       try {
         const { data } = await getChannelAPI()
@@ -79,6 +108,67 @@ export default {
           const status = error.response.status
           // 把&&换成??(空值合并运算符)是一样的:当status === 507为真的时候执行下一条语句.&&常用于括号当中,??常用于语句当中
           status === 507 && this.$toast.fail('服务端异常,请刷新')
+        }
+      }
+    },
+    // 两套系统：
+    // - 用户登录了：我的频道是用户自己的频道信息，我们应该把我的频道数据 持久化到线上的服务器(发送请求)
+    // - 未登录：我的频道是默认的频道信息，我们应该把我的频道数据 持久化到本地存储
+    async delChannel(id) {
+      // 启示：对于删除或者添加操作都要进行两步：后端发送请求删除添加+前端视图删除添加。这样可以减少发送请求，如果只进行后端操作，就会要在操作后再发送请求去请求数据。
+      // 一定要先写后端再写前端，后端成功前端才进行操作，后端不成功前端不进行操作
+      try {
+        // 删除后最新的我的频道
+        const newChannels = this.channels.filter((item) => item.id !== id)
+        if (this.isLogin) {
+          // 用户登录了：我的频道是用户自己的频道信息，我们应该把我的频道数据 持久化到线上的服务器(发送请求)
+          // 1. 发送请求（后端）删除频道
+          await delChannelAPI(id)
+        } else {
+          // 未登录：我的频道是默认的频道信息，我们应该把我的频道数据 持久化到本地存储
+          // 未登录把我的频道存到本地存储
+          // - 1. 在vuex的state里声明一个变量等着去接收我的频道
+          // - 2. 在vuex的mutations里创建一个函数去把我的频道给到/修改该变量
+          // - 3. 利用vuex-persistedstate插件持久化到本地存储
+          this.SET_MY_CHANNELS(newChannels)
+        }
+
+        // 2. 视图层（前端）删除频道
+        this.channels = newChannels
+        this.$toast.success('删除频道成功~')
+      } catch (error) {
+        // 发送请求的错误(axios包装的错误对象)且状态码为401
+        if (error.response && error.response.status === 401) {
+          this.$toast.fail('请登录再删除~')
+        } else {
+          // 其他错误让程序员知道
+          throw error
+        }
+      }
+    },
+    async addChannel(channel) {
+      try {
+        if (this.isLogin) {
+          // 用户登录了：我的频道是用户自己的频道信息，我们应该把我的频道数据 持久化到线上的服务器(发送请求)
+          // 1. 发送请求（后端）添加频道
+          // 第二个传的参数为告诉后端添加到我的频道数组的哪个位置(索引号)，由于后端的我的频道的数据和前端的是一样的，所以我们可以用前端的我的频道的数据的长度(this.channels.length)作为这个参数
+          await addChannelAPI(channel.id, this.channels.length)
+        } else {
+          // 未登录：我的频道是默认的频道信息，我们应该把我的频道数据 持久化到本地存储
+          // 未登录把我的频道存到本地存储
+          // 把之前的我的频道的数组和添加的频道展开合并成最新的我的频道数组，存到本地存储
+          this.SET_MY_CHANNELS([...this.channels, channel])
+        }
+        // 2. 视图层（前端）添加频道
+        this.channels.push(channel)
+        this.$toast.success('添加频道成功~')
+      } catch (error) {
+        // 发送请求的错误(axios包装的错误对象)且状态码为401
+        if (error.response && error.response.status === 401) {
+          this.$toast.fail('请登录再添加~')
+        } else {
+          // 其他错误让程序员知道
+          throw error
         }
       }
     }

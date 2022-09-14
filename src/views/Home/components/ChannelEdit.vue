@@ -43,6 +43,7 @@
           :key="item.id"
           :text="item.name"
           icon="plus"
+          @click="$emit('add-channel', item)"
         />
       </van-grid>
     </div>
@@ -82,15 +83,17 @@ export default {
     }
   },
   methods: {
+    // 获取所有频道
     async getAllChannels() {
       const { data } = await getAllChannelsAPI()
       console.log(data)
       this.allChannels = data.data.channels
     },
-    handleMyChannel({name}, index) {
+    handleMyChannel({name, id}, index) {
         // 如果是编辑状态且频道不是推荐，就删除频道
         if (this.isEdit && name !== '推荐') {
-
+          // 自定义删除事件子组件触发。把删除频道的id传给父组件去删除
+          this.$emit('del-channel', id)
         } else {
             // 如果不是编辑状态或者是编辑状态但频道是推荐：1.关闭弹窗；2.切换频道
             this.$emit('change-active', index)

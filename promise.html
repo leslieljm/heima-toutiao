@@ -28,6 +28,10 @@
         //   - eventBus
         //   - promise 异步的时候
         // 9. promise实例对象除了链式调用then方法以外,还可以同一promise实例对象多次调用then方法
+        // 10. promise的链式调用
+        // 11. then方法里的异步任务出错，能在下一个then拿到出错原因
+        // 12. 把then的回调：onFulfilled，onRejected 做成微任务：利用queueMicroTask()方法，会将异步任务变成微任务
+        // 13. then()方法的回调函数中return的结果，一定能在下一个.then方法里的成功的回调函数里接收到
         const PENDING = 'pending'
         const FULFILLED = 'fulfilled'
         const REJECTED = 'rejected'
@@ -62,13 +66,14 @@
                 // 6. 当promise在执行过程当中,任何错误都会导致promise变成失败态
                 try {
                     executer(resolve, reject)
-                } catch (error) {
+                } catch (error) { // 只能捕获同步的错误
                     reject(error)
                 }
             }
 
+            // then 里面的回调onFulfilled，onRejected
             then(onFulfilled, onRejected) {
-                    if (this.status === FULFILLED) {
+                    /* if (this.status === FULFILLED) {
                         onFulfilled(this.value)
                     }
                     if (this.status === REJECTED) {
@@ -87,7 +92,69 @@
                         this.onRejectedCallBacks.push(() => {
                             onRejected(this.reason)
                         })
-                    }
+                    } */
+
+                    // 实现10. promise的链式调用
+                    // 把三个if放在new Promise()外和放在new Promise()里，代码的执行顺序都是一样的：先执行三个if语句(executer执行器函数)再去new出一个promise实例。复习理解的时候，看放在外面的
+                    // 但要放在里面：因为要传参进去
+                    // 通过包裹try catch来捕获链式调用异步的错误
+                    const pr = new Promise((resolve, reject) => {
+                        if (this.status === FULFILLED) {
+                            queueMicroTask(() => {
+                                try {
+                                const x = onFulfilled(this.value)
+                                // 把第一次调用then返回的promise变成成功态
+                                resolve(x)
+                            } catch (error) {
+                                reject(error)
+                            }
+                            })
+                        }
+                        if (this.status === REJECTED) {
+                            queueMicroTask(() => {
+                                try {
+                                const x = onRejected(this.reason)
+                                // 把第一次调用then返回的promise变成成功态
+                                resolve(x)
+                            } catch (error) {
+                                reject(error)
+                            }
+                            })
+                            
+                        }
+                        // promise 异步的时候:resolve函数没有执行时:
+                        if (this.status === PENDING) {
+                            // 1. 订阅,把函数保存起来
+                            // this.onFulfilled = onFulfilled
+                            // this.onRejected = onRejected
+                            // 必须要包一层函数后再push进去,因为如果没有传失败态函数的话,会出现直接调用失败态函数onRejected,而失败态函数是undefined的错
+                            this.onFulfilledCallBacks.push(() => {
+                                queueMicroTask(() => {
+                                    try {
+                                    const x = onFulfilled(this.value)
+                                // 把第一次调用then返回的promise变成成功态
+                                    resolve(x)
+                                } catch (error) {
+                                    reject(error)
+                                }
+                            })
+                                
+                            })
+                            
+                            this.onRejectedCallBacks.push(() => {
+                                queueMicroTask(() => {
+                                    try {
+                                    const x = onRejected(this.reason)
+                                // 把第一次调用then返回的promise变成成功态
+                                    resolve(x)
+                                } catch (error) {
+                                    reject(error)
+                                }
+                            })  
+                            })
+                        }
+                    })
+                    return pr
                 }
         }
 
@@ -140,6 +207,20 @@
         p7.then(
             (res) => console.log(res)
         )
+
+        // 11. then方法出错，能在下一个then拿到出错原因
+        const p8 = new Promise((resolve, reject) => {
+            resolve('成功')
+        })
+        p8.then((res) => {
+            console.log(res, a);
+        }).then(
+            () => {},
+            (error) => console.log(error)
+        )
+
+        // 13. then()方法的回调函数中return的结果，一定能在下一个.then方法里的成功的回调函数里接收到
+        const p9 = new Promise()
     </script>
 </body>
 </html>

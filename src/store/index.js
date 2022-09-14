@@ -6,7 +6,7 @@ Vue.use(Vuex)
 
 // 作业： 封装本地存储
 
-// vuex-persistedstate插件 --> 持久化state
+// vuex-persistedstate插件 --> 持久化state到本地存储
 // 1. 下载：yarn add vuex-persistedstate@3.2.1
 // 2. 引入：import createPersistedState from 'vuex-persistedstate'
 // 3. 调用：插件导出的都是函数，要调用一下：plugins: [createPersistedState()],
@@ -22,15 +22,16 @@ export default new Vuex.Store({
       key: 'HEIMA_TOUTIAO',
       // storage: window.sessionStorage,
       reducer(state) {
-        const { tokenObj } = state
+        const { tokenObj, myChannels } = state
         // return后 一定要加{}
-        return { tokenObj }
+        return { tokenObj, myChannels }
       }
     })
   ],
   state: {
     // tokenObj: JSON.parse(window.localStorage.getItem('HEIMATOUTIAO_TOKEN')) || {}
-    tokenObj: {}
+    tokenObj: {},
+    myChannels: []
   },
   getters: {
     isLogin(state) {
@@ -44,6 +45,13 @@ export default new Vuex.Store({
       state.tokenObj = token
       // token持久化：本地存储
       // window.localStorage.setItem('HEIMATOUTIAO_TOKEN', JSON.stringify(token))
+    },
+    /**
+     * 把删除或者添加后的最新的channels频道数组存到vuex
+     * @param {*} channels 删除或者添加后的最新的channels频道数组
+     */
+    SET_MY_CHANNELS(state, channels) {
+      state.myChannels = channels
     }
   }
 })
