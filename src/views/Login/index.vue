@@ -1,9 +1,9 @@
 <template>
   <div>
-    <!-- 头部导航 -->
+    <!-- 1. 头部导航 -->
     <!-- 改css样式可以通过添加类名来做，防止污染 -->
     <van-nav-bar title="登录" class="nav_bar" />
-    <!-- 登录表单 -->
+    <!-- 2. 登录表单 -->
     <!-- van-field：输入框。text, password, 文本域-->
     <!-- v-model:用户输入的值.双向绑定数据 -->
     <!-- name属性:用于标识表单项.提交的数据,会提交给name的属性值 -->
@@ -26,11 +26,11 @@
         placeholder="请输入验证码"
         :rules="codeRules"
       >
-        <!-- 字体图标插槽 -->
+        <!-- 3. 字体图标插槽 -->
         <template #label>
           <span class="toutiao toutiao-yanzhengma"></span>
         </template>
-        <!-- 发送验证码按钮插槽 -->
+        <!-- 4. 发送验证码按钮插槽 -->
         <template #button>
           <!-- 发送验证码按钮, 形成互斥的效果 -->
           <!-- 在表单中，除了提交按钮外，可能还有一些其他的功能性按钮，如发送验证码按钮。在使用这些按钮时，要注意将native-type设置为button，否则会触发表单提交。 -->

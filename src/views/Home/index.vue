@@ -1,12 +1,12 @@
 <template>
   <div>
-    <!-- 搜索框 -->
+    <!-- 1. 搜索框 -->
     <van-nav-bar class="navbar">
       <template #title>
-        <van-button icon="search" size="small" round block>搜索</van-button>
+        <van-button @click="$router.push('/search')" icon="search" size="small" round block>搜索</van-button>
       </template>
     </van-nav-bar>
-    <!-- 频道及文章展示 -->
+    <!-- 2. 频道及文章展示 -->
     <!-- active:高亮的tab的索引 -->
     <!-- 通过 swipeable 属性可以开启滑动切换标签页。 -->
     <van-tabs v-model="active" swipeable>
@@ -18,7 +18,7 @@
       <span class="toutiao toutiao-gengduo" @click="isShow = true"></span>
     </van-tabs>
 
-    <!-- 弹出层：van-popup -->
+    <!-- 3. 弹出层：van-popup -->
     <!-- 设置 closeable 属性后，会在弹出层的右上角显示关闭图标 -->
     <!-- close-icon-position：关闭图标位置，可选值为top-left bottom-left bottom-right -->
     <van-popup

@@ -1,8 +1,8 @@
 <template lang="">
   <div class="profile">
-    <!-- 头部 -->
+    <!-- 1. 头部 -->
     <header>
-      <!-- 未登录的结构 -->
+      <!-- 1.1 未登录的结构 -->
       <div class="login banner" v-if="isLogin">
         <van-row></van-row>
         <van-row>
@@ -55,14 +55,14 @@
           </van-grid>
         </van-row>
       </div>
-      <!-- 登录状态的结构 -->
+      <!-- 1.2 登录状态的结构 -->
       <div class="logout banner" v-else @click="$router.push('/login')">
         <van-image width="1.76rem" height="1.76rem" :src="mobileSrc" />
         <span class="text">登录/注册</span>
       </div>
     </header>
 
-    <!-- 主体 -->
+    <!-- 2. 主体 -->
     <main>
       <!-- clickable 相当于 :clickable="true"  点击反馈 -->
       <van-grid :column-num="2" clickable>
@@ -85,7 +85,7 @@
       </div>
     </main>
 
-    <!-- 底部 -->
+    <!-- 3. 底部 -->
     <footer>
       <!-- block 是否为块级元素，开启该属性后和父级盒子一样宽 -->
       <van-button block style="color: red" v-if="isLogin" @click="logout"

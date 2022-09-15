@@ -1,6 +1,10 @@
 <template>
   <div>
-    <router-view></router-view>
+    <!-- vant组件的动画效果，想让谁有动画效果就包谁，但包的这个东西要有显示隐藏的动作，如果包的是组件(涉及到两个东西进行切换)，用mode指定是先出后入还是先入后出 -->
+        <!-- 左滑进入 -->
+    <transition name="van-slide-left" mode="out-in">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
 <script>
