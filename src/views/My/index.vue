@@ -19,7 +19,7 @@
                 height="1.5rem"
                 :src="userInfo.photo"
               />
-              <span class="mobile">{{userInfo.name}}</span>
+              <span class="mobile">{{ userInfo.name }}</span>
             </van-row>
           </van-col>
 
@@ -31,7 +31,11 @@
               align="center"
               style="height: 100%"
             >
-              <van-button size="small" round class="edit-btn"
+              <van-button
+                size="small"
+                round
+                class="edit-btn"
+                @click="$router.push('/user')"
                 >编辑按钮</van-button
               >
             </van-row>
@@ -41,16 +45,16 @@
         <van-row>
           <van-grid class="grid" :border="false">
             <van-grid-item text="头条">
-              <template #icon>{{userInfo.art_count}}</template>
+              <template #icon>{{ userInfo.art_count }}</template>
             </van-grid-item>
             <van-grid-item text="粉丝">
-              <template #icon>{{userInfo.fans_count}}</template>
+              <template #icon>{{ userInfo.fans_count }}</template>
             </van-grid-item>
             <van-grid-item text="关注">
-              <template #icon>{{userInfo.follow_count}}</template>
+              <template #icon>{{ userInfo.follow_count }}</template>
             </van-grid-item>
             <van-grid-item text="获赞">
-              <template #icon>{{userInfo.like_count}}</template>
+              <template #icon>{{ userInfo.like_count }}</template>
             </van-grid-item>
           </van-grid>
         </van-row>

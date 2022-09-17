@@ -49,3 +49,37 @@ export const getUserInfoAPI = () => {
     }
   })
 }
+
+/**
+ * 上传图片。服务器会返回图片地址url
+ * @param {*} file 裁剪过后的图片的file对象
+ * @returns Promise
+ */
+export const uploadPhotoAPI = (file) => {
+  const fm = new FormData()
+  fm.append('photo', file)
+
+  return request({
+    url: '/v1_0/user/photo',
+    method: 'PATCH',
+    data: fm
+  })
+}
+
+/**
+ * 获取用户编辑信息
+ * @returns Promise
+ */
+export const getUserUpdateInfoAPI = () => {
+  return request({
+    url: '/v1_0/user/profile'
+  })
+}
+
+export const updateUserInfoAPI = (userInfo) => {
+  return request({
+    url: '/v1_0/user/profile',
+    method: 'PATCH',
+    data: userInfo
+  })
+}
